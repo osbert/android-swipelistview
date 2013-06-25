@@ -214,14 +214,18 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
         this.swipeMode = swipeMode;
     }
 
-	/**
-	 * Check is swiping is enabled
-	 *
-	 * @return
-	 */
-	protected boolean isSwipeEnabled() {
-		return swipeMode != SwipeListView.SWIPE_MODE_NONE;
-	}
+    /**
+     * Check is swiping is enabled
+     *
+     * @return
+     */
+    protected boolean isSwipeEnabled() {
+        return swipeMode != SwipeListView.SWIPE_MODE_NONE;
+    }
+
+    boolean isSwiping() {
+        return swiping;
+    }
 
     /**
      * Return action on left
@@ -470,9 +474,13 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
      */
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-		if(!isSwipeEnabled()) {
-			return false;
-		}
+        return false;
+    }
+
+    public boolean myOnTouch(View view, MotionEvent motionEvent) {
+        if(!isSwipeEnabled()) {
+            return false;
+        }
 
         if (viewWidth < 2) {
             viewWidth = swipeListView.getWidth();
@@ -518,7 +526,6 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
                         break;
                     }
                 }
-                view.onTouchEvent(motionEvent);
                 return true;
             }
 

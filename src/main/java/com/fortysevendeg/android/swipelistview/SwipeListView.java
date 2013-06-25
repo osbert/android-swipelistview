@@ -33,7 +33,6 @@ import android.widget.ListView;
  * ListView subclass that provides the swipe functionality
  */
 public class SwipeListView extends ListView {
-
     /**
      * Used when user want change swipe list mode on some rows
      */
@@ -206,7 +205,7 @@ public class SwipeListView extends ListView {
         touchListener.setSwipeMode(swipeMode);
         touchListener.setSwipeClosesAllItemsWhenListMoves(swipeCloseAllItemsWhenMoveList);
         touchListener.setSwipeOpenOnLongPress(swipeOpenOnLongPress);
-        setOnTouchListener(touchListener);
+        // setOnTouchListener(touchListener);
         setOnScrollListener(touchListener.makeScrollListener());
     }
 
@@ -461,68 +460,25 @@ public class SwipeListView extends ListView {
 
     /**
      * @see android.widget.ListView#onInterceptTouchEvent(android.view.MotionEvent)
+     * @return true if this motion event should be captured by SwipeListView (or it's parents).
      */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        int action = MotionEventCompat.getActionMasked(ev);
-        final float x = ev.getX();
-        final float y = ev.getY();
-
-		if(isEnabled() && touchListener.isSwipeEnabled()) {
-
-			if (touchState == TOUCH_STATE_SCROLLING_X) {
-				return touchListener.onTouch(this, ev);
-			}
-
-			switch (action) {
-				case MotionEvent.ACTION_MOVE:
-					checkInMoving(x, y);
-					return touchState == TOUCH_STATE_SCROLLING_Y;
-				case MotionEvent.ACTION_DOWN:
-					touchListener.onTouch(this, ev);
-					touchState = TOUCH_STATE_REST;
-					lastMotionX = x;
-					lastMotionY = y;
-					return false;
-				case MotionEvent.ACTION_CANCEL:
-					touchState = TOUCH_STATE_REST;
-					break;
-				case MotionEvent.ACTION_UP:
-					touchListener.onTouch(this, ev);
-					return touchState == TOUCH_STATE_SCROLLING_Y;
-				default:
-					break;
-			}
-		}
-
-        return super.onInterceptTouchEvent(ev);
+        touchListener.myOnTouch(this, ev);
+        return touchListener.isSwiping() || super.onInterceptTouchEvent(ev);
     }
 
     /**
-     * Check if the user is moving the cell
+     * Events targeting this element as well as events stolen from
+     * children views through intercept will come through here.
      *
-     * @param x Position X
-     * @param y Position Y
+     * Handle x-axis swiping state tracking.
+     *
+     * @return true if this MotionEvent was handled by SwipeListView.
      */
-    private void checkInMoving(float x, float y) {
-        final int xDiff = (int) Math.abs(x - lastMotionX);
-        final int yDiff = (int) Math.abs(y - lastMotionY);
-
-        final int touchSlop = this.touchSlop;
-        boolean xMoved = xDiff > touchSlop;
-        boolean yMoved = yDiff > touchSlop;
-
-        if (xMoved) {
-            touchState = TOUCH_STATE_SCROLLING_X;
-            lastMotionX = x;
-            lastMotionY = y;
-        }
-
-        if (yMoved) {
-            touchState = TOUCH_STATE_SCROLLING_Y;
-            lastMotionX = x;
-            lastMotionY = y;
-        }
+    @Override
+    public boolean onTouchEvent(MotionEvent motionEvent) {
+        return touchListener.myOnTouch(this, motionEvent) || super.onTouchEvent(motionEvent);
     }
     
     /**
