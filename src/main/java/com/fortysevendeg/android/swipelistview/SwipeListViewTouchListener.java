@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.view.*;
 import android.widget.AbsListView;
 import android.widget.ListView;
+import android.util.Log;
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorListenerAdapter;
 import com.nineoldandroids.animation.ValueAnimator;
@@ -343,7 +344,7 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
                     public void onAnimationEnd(Animator animation) {
                         if (swap) {
                             closeOpenedItems();
-                            performDismiss(view, position);
+                            performDismiss(view, position, swapRight);
                         }
                     }
                 });
@@ -646,31 +647,12 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
         }
     }
 
-	/**
-     * Class that saves pending dismiss data
-     */
-    class PendingDismissData implements Comparable<PendingDismissData> {
-        public int position;
-        public View view;
-
-        public PendingDismissData(int position, View view) {
-            this.position = position;
-            this.view = view;
-        }
-
-        @Override
-        public int compareTo(PendingDismissData other) {
-            // Sort by descending position
-            return other.position - position;
-        }
-    }
-
     /**
      * Perform dismiss action
      * @param dismissView View
      * @param dismissPosition Position of list
      */
-    private void performDismiss(final View dismissView, final int dismissPosition) {
+    private void performDismiss(final View dismissView, final int dismissPosition, boolean swapRight) {
         final ViewGroup.LayoutParams lp = dismissView.getLayoutParams();
         final int originalHeight = dismissView.getHeight();
 
@@ -684,12 +666,7 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
                     // No active animations, process all pending dismisses.
                     // Sort by descending position
                     Collections.sort(pendingDismisses);
-
-                    int[] dismissPositions = new int[pendingDismisses.size()];
-                    for (int i = pendingDismisses.size() - 1; i >= 0; i--) {
-                        dismissPositions[i] = pendingDismisses.get(i).position;
-                    }
-                    swipeListView.onDismiss(dismissPositions);
+                    swipeListView.onDismiss(pendingDismisses);
 
                     ViewGroup.LayoutParams lp;
                     for (PendingDismissData pendingDismiss : pendingDismisses) {
@@ -714,7 +691,7 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
             }
         });
 
-        pendingDismisses.add(new PendingDismissData(dismissPosition, dismissView));
+        pendingDismisses.add(new PendingDismissData(dismissPosition, dismissView, swapRight));
         animator.start();
     }
 

@@ -29,6 +29,9 @@ import android.view.ViewConfiguration;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.util.List;
+import com.fortysevendeg.android.swipelistview.PendingDismissData;
+
 /**
  * ListView subclass that provides the swipe functionality
  */
@@ -249,9 +252,9 @@ public class SwipeListView extends ListView {
      *
      * @param reverseSortedPositions All dismissed positions
      */
-    protected void onDismiss(int[] reverseSortedPositions) {
+    protected void onDismiss(List<PendingDismissData> dismisses) {
         if (swipeListViewListener != null) {
-            swipeListViewListener.onDismiss(reverseSortedPositions);
+            swipeListViewListener.onDismiss(dismisses);
         }
     }
 

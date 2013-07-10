@@ -18,6 +18,9 @@
 
 package com.fortysevendeg.android.swipelistview;
 
+import java.util.List;
+import com.fortysevendeg.android.swipelistview.PendingDismissData;
+
 /**
  * Listener to get callback notifications for the SwipeListView
  */
@@ -80,7 +83,7 @@ public interface SwipeListViewListener {
      * Called when user dismisses items
      * @param reverseSortedPositions Items dismissed
      */
-    void onDismiss(int[] reverseSortedPositions);
+    void onDismiss(List<PendingDismissData> dismisses);
 
     /**
      * Used when user want to change swipe list mode on some rows. Return SWIPE_MODE_DEFAULT
